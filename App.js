@@ -3,24 +3,36 @@ import {
   StyleSheet
 } from 'react-native'
 import DashBoard from './screens/DashBoard';
+import Option from './screens/Option';
 import Welcome from './screens/Welcome';
 import Login from './screens/Login';
 import Loading from './screens/Loading';
+import MCIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { AuthContext } from './navigations/AuthContext'
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const App = () => {
-  const [user, setUser] = useState('aa')
+  const [user, setUser] = useState('')
   return (
     <AuthContext.Provider value={{ user, setUser }}>
     <NavigationContainer>
       {user ?
-      <DashBoard /> :
+    <Tab.Navigator
+    screenOptions={stylesNavigation}
+    tabBarOptions={{
+      activeTintColor: '#0AC4BA',
+      inactiveTintColor: 'gray',
+    }}>
+    <Tab.Screen name="Dash" component={DashBoard} options={{title:'Trang chủ'}}/>
+    <Tab.Screen name="Option" component={Option} options={{title:'Tùy chọn'}}/>
+  </Tab.Navigator> :
       <Stack.Navigator >
               <Stack.Screen
                 options={{ headerShown: false }}

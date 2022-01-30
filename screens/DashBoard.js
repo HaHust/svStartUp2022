@@ -30,6 +30,7 @@ const Dashboardmemo = (() => {
     const [data, setData] = useState([])
     const [flag, setFlag] = useState(false)
     const [show, setShow] = useState(false)
+    const [isCalib, setIsCalib] = useState(false)
 
     const rootRef = firebase.database().ref();
     const animalRef = rootRef.child('/').orderByKey();
@@ -114,63 +115,19 @@ const Dashboardmemo = (() => {
         });
         setShow(false)
     }
-    const increase = () => {
-        const modifyData = rootRef.child(`${dataUser.id}`)
-        modifyData.once("value").then((snap) => { dataUser.angle = snap.toJSON().angle })
-
-        if (dataUser.angle < 145) {
-            if (dataUser.angle > 40) {
-                dataUser.angle += 20;
-            }
-            else if (dataUser.angle < 40) {
-                dataUser.angle += 2;
-            }
-            rootRef.child(`${dataUser.id}`).update({
-                angle: dataUser.angle,
-            });
-        }
-        if (dataUser.angle > 145) {
-            dataUser.angle = 145;
-
-            rootRef.child(`${dataUser.id}`).update({
-                angle: dataUser.angle,
-            });
-        }
-    }
-    const decrease = () => {
-        const modifyData = rootRef.child(`${dataUser.id}`)
-        modifyData.once("value").then((snap) => { dataUser.angle = snap.toJSON().angle })
-
-        if (dataUser.angle > 30) {
-            if (dataUser.angle < 40) {
-                dataUser.angle -= 2;
-            }
-            else if (dataUser.angle >= 40) {
-                dataUser.angle -= 20
-            }
-            rootRef.child(`${dataUser.id}`).update({
-                angle: dataUser.angle,
-            });
-        }
-        if (dataUser.angle < 30) {
-            dataUser.angle = 30;
-            rootRef.child(`${dataUser.id}`).update({
-                angle: dataUser.angle,
-            });
-        }
-    }
-    const onLock = () => {
-        const modifyData = rootRef.child(`${dataUser.id}`)
+    // Calib velocity
+    const setCalib = () => {
+      rootRef.child(`${dataUser.id}`).get().then((snapshot) => {
         rootRef.child(`${dataUser.id}`).update({
-            angle: 30,
+          calibVelo: snapshot.val().velo,
+          isCalib: true
         });
+        alert("da cap nhat")
+      }).catch((e)=>{
+        console.log(e);
+      })
     }
-    const onOpen = () => {
-        const modifyData = rootRef.child(`${dataUser.id}`)
-        rootRef.child(`${dataUser.id}`).update({
-            angle: 145,
-        });
-    }
+
     return (
         <View style={styles.container}>
 
@@ -221,40 +178,12 @@ const Dashboardmemo = (() => {
                         onChangeText={text => dataUser.bedId = text}
                         placeholder={dataUser.bedId}
                     />
-                    <TextInput
-                        label='Thông tin bình truyền'
-                        mode='outlined'
-                        onChangeText={text => dataUser.bedId = text}
-                        placeholder={dataUser.bedId}
-                    />
                     <View style={{ flexDirection: 'row' }}>
                         <Text style={{ fontSize: 15, marginTop: 10 }}>Tốc độ chảy:  </Text>
                         <Text style={{ fontSize: 15, marginTop: 10 }}>{dataUser.velo} giọt/phút</Text>
-                    </View>
-                    <View style={{ flexDirection: 'column', marginTop: 10 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={{ fontSize: 15 }}>Tăng vận tốc: </Text>
-                            <TouchableOpacity onPress={increase}>
-                                <MCIcons name='trending-up' size={40} color={'#0AC4BA'} ></MCIcons>
+                            <TouchableOpacity style={styles.buttonCalib} onPress={setCalib}>
+                                <Text style={styles.textCalib}>Hiệu chuẩn</Text>
                             </TouchableOpacity>
-                            <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#0AC4BA', '#2BDA8E']} style={styles.setZero}>
-                                <TouchableOpacity style={styles.setZero1} onPress={onLock}>
-                                    <Text style={{ fontSize: 18, color: 'white', fontWeight: 'bold' }} >Khoá</Text>
-                                </TouchableOpacity>
-                            </LinearGradient>
-                        </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={{ fontSize: 15 }}>Giảm vận tốc: </Text>
-                            <TouchableOpacity onPress={decrease}>
-                                <MCIcons name='trending-down' size={40} color={'#0AC4BA'} ></MCIcons>
-                            </TouchableOpacity>
-                            <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#0AC4BA', '#2BDA8E']} style={styles.setZero}>
-                                <TouchableOpacity style={styles.setZero1} onPress={onOpen}>
-                                    <Text style={{ fontSize: 18, color: 'white', fontWeight: 'bold' }}>Mở hết</Text>
-                                </TouchableOpacity>
-                            </LinearGradient>
-                        </View>
-
                     </View>
                     <View style={{ alignItems: 'center', marginVertical: 5, }}>
                         <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#0AC4BA', '#2BDA8E']} style={{ borderRadius: 10 }}>
@@ -339,6 +268,28 @@ const styles = StyleSheet.create({
 
         padding: 20,
         borderRadius: 20,
-    }
+    },
+    buttonCalib: {
+      borderRadius:10,
+      marginLeft:10,
+      marginTop:5,
+      backgroundColor:'#0AC4BA',
+      width: 120, 
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonWithoutCalib: {
+      borderRadius:10,
+      marginLeft:10,
+      marginTop:5,
+      backgroundColor:'#0AC4BA',
+      width: 120, 
+      height: 30,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    textCalib: { fontSize: 15, color: '#fff', fontWeight: 'bold' },
+    textWithoutCalib: { fontSize: 15, color: '#000', fontWeight: 'bold' },
 })
 export default Dashboard = React.memo(Dashboardmemo)
