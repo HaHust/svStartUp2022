@@ -12,6 +12,8 @@ target 'svStartUp2022' do
     :hermes_enabled => false
   )
 
+  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
+
   target 'svStartUp2022Tests' do
     inherit! :complete
     # Pods for testing

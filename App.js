@@ -1,112 +1,111 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
-import type {Node} from 'react';
+import React, { useState } from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+  StyleSheet
+} from 'react-native'
+import DashBoard from './screens/DashBoard';
+import Welcome from './screens/Welcome';
+import Login from './screens/Login';
+import Loading from './screens/Loading';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import { AuthContext } from './navigations/AuthContext'
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
+
+const App = () => {
+  const [user, setUser] = useState('aa')
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
-
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+    <AuthContext.Provider value={{ user, setUser }}>
+    <NavigationContainer>
+      {user ?
+      <DashBoard /> :
+      <Stack.Navigator >
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="home"
+                component={Welcome} />
+              <Stack.Screen
+                options={{
+                  headerBackImage: () => (<Image style={{ width: 30, height: 30 }} source={require('./assets/pictures/back.png')} />),
+                  headerStyle: { elevation: 0, borderBottomColor: '#FFF', height: 75 },
+                  headerTitle: false,
+                  headerLeftContainerStyle: {
+                    alignContent: 'center',
+                    marginLeft: 15,
+                    marginTop: 20,
+                  }
+                }}
+                name="Login"
+                component={Login} />
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="loading"
+                component={Loading} />
+      </Stack.Navigator>
+      }
+    </NavigationContainer>
+    </AuthContext.Provider >
+  )
+}
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  container: {
+    flex: 1,
+    color: 'white',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }
 });
+const stylesNavigation = ({ route }) => ({
+  tabBarIcon: ({ focused, color, size }) => {
+    let iconName;
+    if (route.name == "Dash") {
+      iconName = focused
+        ? 'shield-home'
+        : 'shield-home-outline';
+    } else if (route.name == "Option") {
+      iconName = focused ? 'gamepad-circle' : 'gamepad-circle-outline';
+    }
+    return <MCIcons name={iconName} size={size} color={color} />;
+  },
+})
+const stylesHeaderBarOption = {
+  title: 'Tùy chọn',
+  headerStyle: {
+    backgroundColor:'#0AC4BA'
+  },
+  headerTintColor: '#fff',
+  headerTitleStyle: {
+    fontWeight: 'bold',
+  },
+  headerTitleAlign: 'center'
+}
+
+const stylesHeaderBarDash = (navigation)=>({
+  title: 'Trang chủ',
+  headerStyle: {
+    backgroundColor: '#0AC4BA',
+  },
+  headerTintColor: '#fff',
+  headerTitleStyle: {
+    fontWeight: 'bold',
+    color:'#fff'
+  },
+  headerTitleAlign: 'center',
+  headerRightContainerStyle:{marginRight:15},
+  headerRight: () => (
+    <TouchableOpacity onPress={()=>{alert("Chức năng đang phát triển")}}>
+      <MCIcons name={'camera-enhance-outline'} size={30} color={'#fff'}/>
+    </TouchableOpacity>
+  ),
+  headerLeftContainerStyle:{marginLeft:15},
+  headerLeft: () => (
+    <TouchableOpacity onPress={()=>navigation.openDrawer()}>
+      <MCIcons name={'gesture-swipe-right'} size={30} color={'#fff'}/>
+    </TouchableOpacity>
+  ),
+})
 
 export default App;
